@@ -1,21 +1,53 @@
 buildscript {
-    if (project == rootProject) {
-        repositories {
-            google()
-            mavenCentral()
-            jcenter()
-        }
 
-        dependencies {
-            classpath 'com.android.tools.build:gradle:3.5.3'
-        }
+  repositories {
+    google()
+    mavenCentral()
+
+    maven {
+      url "https://plugins.gradle.org/m2/"
     }
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:4.2.1'
+  }
 }
-
 apply plugin: 'com.android.library'
 
 def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
+def found = false
+def reactNativeDir = null
+def androidSourcesName = 'React Native sources'
+def parentDir = rootProject.projectDir
+
+if (rootProject.ext.has('reactNativeAndroidRoot')) {
+  reactNativeDir = rootProject.ext.get('reactNativeAndroidRoot')
+} else {
+  reactNativeDir = new File(
+    projectDir,
+    '/../../../node_modules/react-native/android'
+  )
+}
+
+if (reactNativeDir.exists()) {
+  found = true
+} else {
+  1.upto(5, {
+    if (found) return true
+    parentDir = reactNativeDir.parentFile
+
+    reactNativeDir = new File(
+      parentDir,
+      'node_modules/react-native/android'
+    )
+
+    if (reactNativeDir.exists()) {
+      found = true
+    }
+  })
 }
 
 android {
@@ -28,8 +60,9 @@ android {
 
         externalNativeBuild {
             cmake {
-                cppFlags "-O2 -frtti -fexceptions -Wall -fstack-protector-all"
+                cppFlags "-O2 -frtti -fexceptions -Wall -fstack-protector-all -DONANDROID"
                 abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+                arguments '-DANDROID_STL=c++_shared', "-DNODE_MODULES_DIR=${reactNativeDir.parentFile.parentFile.toString()}"
             }
         }
 
@@ -38,6 +71,7 @@ android {
     externalNativeBuild {
         cmake {
             path "CMakeLists.txt"
+            version "3.8.0+"
         }
     }
 
@@ -47,11 +81,15 @@ android {
         }
     }
     lintOptions {
-        disable 'GradleCompatible'
+      abortOnError false
+      disable 'GradleCompatible'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    configurations {
+      extractJNI
     }
 }
 
@@ -64,9 +102,67 @@ repositories {
     google()
     mavenCentral()
     jcenter()
+
+    if (reactNativeDir.exists()) {
+      maven {
+        url reactNativeDir.toString()
+        name androidSourcesName
+      }
+      logger.info(":${project.name}:reactNativeAndroidRoot ${reactNativeDir.canonicalPath}")
+    }
+
+    if (!found) {
+      throw new GradleException(
+        "${project.name}: unable to locate React Native android sources. " +
+          "Ensure you have you installed React Native as a dependency in your project and try again."
+      )
+    }
 }
 
 dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    def rnAAR = fileTree(reactNativeDir.toString()).matching({ it.include "**/**/*.aar" }).singleFile
+    extractJNI(files(rnAAR))
+}
+
+task extractJNIFiles {
+
+  doLast {
+    configurations.extractJNI.files.each {
+      def file = it.absoluteFile
+
+      copy {
+        from zipTree(file)
+        into "$buildDir/$file.name"
+        include "jni/**/*"
+      }
+    }
+  }
+}
+
+task extractJNIFilesForRelease {
+
+  doLast {
+    configurations.extractJNI.files.each {
+      def file = it.absoluteFile
+
+      copy {
+        from zipTree(file)
+        into "$buildDir/$file.name"
+        // include "jni/**/*"
+      }
+    }
+  }
+}
+
+
+tasks.whenTaskAdded { task ->
+  if (task.name.contains('generateJsonModelDebug') || task.name.contains('externalNativeBuild')) {
+    task.dependsOn(extractJNIFiles);
+  }
+  // workaround for builds failing in various ci
+  if (task.name.contains('generateJsonModelRelease')) {
+    task.dependsOn(extractJNIFilesForRelease)
+  }
 }
