@@ -1,39 +1,71 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import * as React from 'react';
+import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import simpleJsiModule, {isLoaded} from 'rn-jsi-second';
 
-import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-
-const App = () => {
-  const [result, setResult] = React.useState<number | undefined>();
+export default function App() {
+  const [result, setResult] = React.useState();
+  const [deviceName, setDeviceName] = React.useState();
+  const [getItemValue, setGetItemValue] = React.useState();
 
   React.useEffect(() => {
-    setResult(global.helloWorld());
+    setResult(simpleJsiModule.helloWorld());
   }, []);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.result}>Result: {result}</Text>
+      <Text>Bindings Installed: {isLoaded().toString()}</Text>
+      <Text>Result: {result}</Text>
+
+      <TouchableOpacity
+        onPress={() => {
+          let value = simpleJsiModule.getDeviceName();
+          setDeviceName(value);
+        }}
+        style={styles.button}>
+        <Text style={styles.buttonTxt}>Device Name: {deviceName}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => {
+          simpleJsiModule.setItem('helloworld', 'Hello World');
+        }}
+        style={styles.button}>
+        <Text style={styles.buttonTxt}>setItem: "Hello World"</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => {
+          setGetItemValue(simpleJsiModule.getItem('helloworld'));
+        }}
+        style={styles.button}>
+        <Text style={styles.buttonTxt}>getItem: {getItemValue}</Text>
+      </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  result: {
-    color: 'black',
-    fontSize: 20,
+  box: {
+    width: 60,
+    height: 60,
+    marginVertical: 20,
+  },
+  button: {
+    width: '95%',
+    alignSelf: 'center',
+    height: 40,
+    backgroundColor: 'green',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  buttonTxt: {
+    color: 'white',
   },
 });
-
-export default App;

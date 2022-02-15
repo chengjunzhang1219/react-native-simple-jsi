@@ -8,7 +8,7 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint .",
-    "setup": "rm -rf node_modules/rn-jsi-second && yarn add ../ && yarn android"
+    "setup": "rm -rf node_modules/rn-jsi-second && yarn add ../"
   },
   "dependencies": {
     "react": "17.0.2",

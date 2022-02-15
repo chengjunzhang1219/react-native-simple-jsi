@@ -1,5 +1,8 @@
 package com.rnjsisecond;
 
+import android.content.SharedPreferences;
+import android.os.Build;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -33,15 +36,6 @@ public class RnJsiSecondModule extends ReactContextBaseJavaModule {
         }
     }
 
-    // Example method
-    // See https://reactnative.dev/docs/native-modules-android
-    @ReactMethod
-    public void multiply(int a, int b, Promise promise) {
-        promise.resolve(nativeMultiply(a, b));
-    }
-
-    public static native int nativeMultiply(int a, int b);
-
     private native void nativeInstall(long jsi);
 
     public void installLib(JavaScriptContextHolder reactContext) {
@@ -54,5 +48,29 @@ public class RnJsiSecondModule extends ReactContextBaseJavaModule {
         Log.e("SimpleJsiModule", "JSI Runtime is not available in debug mode");
       }
 
+    }
+
+    public String getModel() {
+      String manufacturer = Build.MANUFACTURER;
+      String model = Build.MODEL;
+      if (model.startsWith(manufacturer)) {
+        return model;
+      } else {
+        return manufacturer + " " + model;
+      }
+    }
+
+    public void setItem(final String key, final String value) {
+
+      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getReactApplicationContext());
+      SharedPreferences.Editor editor = preferences.edit();
+      editor.putString(key,value);
+      editor.apply();
+    }
+
+    public String getItem(final String key) {
+      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getReactApplicationContext());
+      String value = preferences.getString(key, "");
+      return value;
     }
 }
