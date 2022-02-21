@@ -4,7 +4,7 @@
 #include "pthread.h"
 #include <jsi/jsi.h>
 
-using namespace facebook::jsi;
+using namespace facebook;
 using namespace std;
 
 JavaVM *java_vm;
@@ -83,15 +83,15 @@ static jstring string2jstring(JNIEnv *env, const string &str) {
 }
 
 
-void install(facebook::jsi::Runtime &jsiRuntime) {
-    auto getDeviceName = Function::createFromHostFunction(jsiRuntime,
-                                                          PropNameID::forAscii(jsiRuntime,
+void install(jsi::Runtime &jsiRuntime) {
+    auto getDeviceName = jsi::Function::createFromHostFunction(jsiRuntime,
+                                                          jsi::PropNameID::forAscii(jsiRuntime,
                                                                                "getDeviceName"),
                                                           0,
-                                                          [](Runtime &runtime,
-                                                             const Value &thisValue,
-                                                             const Value *arguments,
-                                                             size_t count) -> Value {
+                                                          [](jsi::Runtime &runtime,
+                                                             const jsi::Value &thisValue,
+                                                             const jsi::Value *arguments,
+                                                             size_t count) -> jsi::Value {
 
                                                               JNIEnv *jniEnv = GetJniEnv();
 
@@ -105,8 +105,8 @@ void install(facebook::jsi::Runtime &jsiRuntime) {
                                                               const char *str = jniEnv->GetStringUTFChars(
                                                                       (jstring) result, NULL);
 
-                                                              return Value(runtime,
-                                                                           String::createFromUtf8(
+                                                              return jsi::Value(runtime,
+                                                                           jsi::String::createFromUtf8(
                                                                                    runtime, str));
 
                                                           });
@@ -114,14 +114,14 @@ void install(facebook::jsi::Runtime &jsiRuntime) {
     jsiRuntime.global().setProperty(jsiRuntime, "getDeviceName", move(getDeviceName));
 
 
-    auto setItem = Function::createFromHostFunction(jsiRuntime,
-                                                    PropNameID::forAscii(jsiRuntime,
+    auto setItem = jsi::Function::createFromHostFunction(jsiRuntime,
+                                                    jsi::PropNameID::forAscii(jsiRuntime,
                                                                          "setItem"),
                                                     2,
-                                                    [](Runtime &runtime,
-                                                       const Value &thisValue,
-                                                       const Value *arguments,
-                                                       size_t count) -> Value {
+                                                    [](jsi::Runtime &runtime,
+                                                       const jsi::Value &thisValue,
+                                                       const jsi::Value *arguments,
+                                                       size_t count) -> jsi::Value {
 
                                                         string key = arguments[0].getString(
                                                                 runtime).utf8(runtime);
@@ -149,21 +149,21 @@ void install(facebook::jsi::Runtime &jsiRuntime) {
                                                         jniEnv->CallVoidMethodA(
                                                                 java_object, set, params);
 
-                                                        return Value(true);
+                                                        return jsi::Value(true);
 
                                                     });
 
     jsiRuntime.global().setProperty(jsiRuntime, "setItem", move(setItem));
 
 
-    auto getItem = Function::createFromHostFunction(jsiRuntime,
-                                                    PropNameID::forAscii(jsiRuntime,
+    auto getItem = jsi::Function::createFromHostFunction(jsiRuntime,
+                                                    jsi::PropNameID::forAscii(jsiRuntime,
                                                                          "getItem"),
                                                     1,
-                                                    [](Runtime &runtime,
-                                                       const Value &thisValue,
-                                                       const Value *arguments,
-                                                       size_t count) -> Value {
+                                                    [](jsi::Runtime &runtime,
+                                                       const jsi::Value &thisValue,
+                                                       const jsi::Value *arguments,
+                                                       size_t count) -> jsi::Value {
 
                                                         string key = arguments[0].getString(
                                                                         runtime)
@@ -188,8 +188,8 @@ void install(facebook::jsi::Runtime &jsiRuntime) {
                                                         const char *str = jniEnv->GetStringUTFChars(
                                                                 (jstring) result, NULL);
 
-                                                        return Value(runtime,
-                                                                     String::createFromUtf8(
+                                                        return jsi::Value(runtime,
+                                                                     jsi::String::createFromUtf8(
                                                                              runtime, str));
 
                                                     });
@@ -201,9 +201,9 @@ void install(facebook::jsi::Runtime &jsiRuntime) {
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_rnjsisecond_RnJsiSecondModule_nativeInstall(JNIEnv *env, jobject thiz, jlong jsi) {
-    auto runtime = reinterpret_cast<facebook::jsi::Runtime *>(jsi);
+    auto runtime = reinterpret_cast<jsi::Runtime *>(jsi);
     if (runtime) {
-        example::install(*runtime);
+        installExampleBridges(*runtime);
         install(*runtime);
     }
     env->GetJavaVM(&java_vm);

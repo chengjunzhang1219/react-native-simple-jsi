@@ -40,6 +40,13 @@ export default function App() {
         style={styles.button}>
         <Text style={styles.buttonTxt}>getItem: {getItemValue}</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          // simpleJsiModule.setMessage({message: 'Message'});
+        }}
+        style={styles.button}>
+        <Text style={styles.buttonTxt}>setMessage: "Message"</Text>
+      </TouchableOpacity>
     </View>
   );
 }

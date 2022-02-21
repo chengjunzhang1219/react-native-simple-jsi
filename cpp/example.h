@@ -1,16 +1,8 @@
-#ifndef EXAMPLE_H
-#define EXAMPLE_H
 
+#include <jsi/jsilib.h>
 #include <jsi/jsi.h>
 
-namespace example {
-  void install(facebook::jsi::Runtime &jsiRuntime);
-}
+using namespace facebook;
 
-namespace facebook {
-    namespace jsi {
-        class Runtime;
-    }
-}
+void installExampleBridges(jsi::Runtime &jsiRuntime);
 
-#endif /* EXAMPLE_H */

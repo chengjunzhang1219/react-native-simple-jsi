@@ -13,6 +13,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.module.annotations.ReactModule;
+import com.facebook.react.bridge.ReadableMap;
 
 @ReactModule(name = RnJsiSecondModule.NAME)
 public class RnJsiSecondModule extends ReactContextBaseJavaModule {
@@ -66,6 +67,10 @@ public class RnJsiSecondModule extends ReactContextBaseJavaModule {
       SharedPreferences.Editor editor = preferences.edit();
       editor.putString(key,value);
       editor.apply();
+    }
+
+    public void setMessage(final ReadableMap map) {
+      Log.d("SET MESSAGE", map.toString());
     }
 
     public String getItem(final String key) {
