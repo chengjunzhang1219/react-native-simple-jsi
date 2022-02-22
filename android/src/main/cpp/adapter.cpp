@@ -3,6 +3,11 @@
 #include "example.h"
 #include "pthread.h"
 #include <jsi/jsi.h>
+// #include <jsi/JSIDynamic.h>
+// #include <folly/dynamic.h>
+// #include <react/jni/NativeMap.h>
+// #include <react/jni/ReadableNativeMap.h>
+// #include <react/jni/WritableNativeMap.h>
 
 using namespace facebook;
 using namespace std;
@@ -154,6 +159,44 @@ void install(jsi::Runtime &jsiRuntime) {
                                                     });
 
     jsiRuntime.global().setProperty(jsiRuntime, "setItem", move(setItem));
+
+
+    // auto setMessage = jsi::Function::createFromHostFunction(jsiRuntime,
+    //                                             jsi::PropNameID::forAscii(jsiRuntime,
+    //                                                                     "setMessage"),
+    //                                             1,
+    //                                             [](jsi::Runtime &runtime,
+    //                                                 const jsi::Value &thisValue,
+    //                                                 const jsi::Value *arguments,
+    //                                                 size_t count) -> jsi::Value {
+
+    //                                                 jsi::Object message = arguments[0].asObject(
+    //                                                         runtime);
+
+    //                                                 auto dynamic = jsi::dynamicFromValue(runtime, message);
+    //                                                 auto map = react::ReadableNativeMap::createWithContents(std::move(dynamic));
+
+
+    //                                                 JNIEnv *jniEnv = GetJniEnv();
+
+    //                                                 java_class = jniEnv->GetObjectClass(
+    //                                                         java_object);
+
+    //                                                 jmethodID set = jniEnv->GetMethodID(
+    //                                                     java_class, "setMessage",
+    //                                                     "(Lcom/facebook/react/bridge/ReadableMap;)V");
+                                                        
+    //                                                 jvalue params[1];
+    //                                                 params[0].l = map.release();
+
+    //                                                 jniEnv->CallVoidMethodA(
+    //                                                         java_object, set, params);
+
+    //                                                 return jsi::Value(true);
+
+    //                                             });
+
+    // jsiRuntime.global().setProperty(jsiRuntime, "setMessage", move(setMessage));
 
 
     auto getItem = jsi::Function::createFromHostFunction(jsiRuntime,
