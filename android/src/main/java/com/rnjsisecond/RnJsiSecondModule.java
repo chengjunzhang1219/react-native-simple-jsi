@@ -69,7 +69,7 @@ public class RnJsiSecondModule extends ReactContextBaseJavaModule {
       editor.apply();
     }
 
-    public void setMessage(final ReadableMap map) {
+    public void setMessage(final CWMessage map) {
       Log.d("SET MESSAGE", map.toString());
     }
 

@@ -23,6 +23,10 @@ add_library(
         SHARED
         src/main/cpp/example.cpp
         src/main/cpp/adapter.cpp
+        src/main/cpp/JSIJNIConversion.cpp
+        src/main/cpp/MessageHostObject.cpp
+        src/main/cpp/JCWMessage.cpp
+        src/main/cpp/JHashMap.cpp
 )
 
 file (GLOB LIBFBJNI_INCLUDE_DIR "${BUILD_DIR}/fbjni-*-headers.jar/")

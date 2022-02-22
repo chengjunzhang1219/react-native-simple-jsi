@@ -42,7 +42,14 @@ export default function App() {
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
-          // simpleJsiModule.setMessage({message: 'Message'});
+          simpleJsiModule.setMessage(
+            JSON.stringify({
+              id: 'Message',
+              body: 'Message',
+              author: 'Message',
+              conversation: 'message',
+            }),
+          );
         }}
         style={styles.button}>
         <Text style={styles.buttonTxt}>setMessage: "Message"</Text>
