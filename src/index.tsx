@@ -12,7 +12,7 @@ const simpleJsiModule: {
   getDeviceName(): string;
   setItem(key: string, value: string): boolean;
   getItem(key: string): string;
-  setMessage(message: string): boolean;
+  setMessage(map: any): boolean;
   //@ts-ignore
 } = global;
 

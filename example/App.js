@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import simpleJsiModule, {isLoaded} from 'rn-jsi-second';
+import messageJSON from './messages.json';
 
 export default function App() {
   const [result, setResult] = React.useState();
@@ -42,14 +43,7 @@ export default function App() {
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
-          simpleJsiModule.setMessage(
-            JSON.stringify({
-              id: 'Message',
-              body: 'Message',
-              author: 'Message',
-              conversation: 'message',
-            }),
-          );
+          simpleJsiModule.setMessage(messageJSON);
         }}
         style={styles.button}>
         <Text style={styles.buttonTxt}>setMessage: "Message"</Text>

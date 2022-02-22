@@ -163,40 +163,37 @@ void install(jsi::Runtime &jsiRuntime) {
 
     jsiRuntime.global().setProperty(jsiRuntime, "setItem", move(setItem));
 
-
     auto setMessage = jsi::Function::createFromHostFunction(jsiRuntime,
-                                                jsi::PropNameID::forAscii(jsiRuntime,
-                                                                        "setMessage"),
-                                                1,
-                                                [](jsi::Runtime &runtime,
-                                                    const jsi::Value &thisValue,
-                                                    const jsi::Value *arguments,
-                                                    size_t count) -> jsi::Value {
+                                                            jsi::PropNameID::forAscii(jsiRuntime,
+                                                                                      "setMessage"),
+                                                            1,
+                                                            [](jsi::Runtime &runtime,
+                                                               const jsi::Value &thisValue,
+                                                               const jsi::Value *arguments,
+                                                               size_t count) -> jsi::Value
+                                                            {
+                                                                auto messageReadableMap = arguments[0].asObject(runtime);
+                                                                auto messageValue = jsi::Value(runtime, messageReadableMap);
+                                                                auto dynamic = jsi::dynamicFromValue(runtime, messageValue);
+                                                                auto map = react::ReadableNativeArray::newObjectCxxArgs(std::move(dynamic));
 
-                                                    // auto boxedHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
-                                                    // auto messageHostObject = static_cast<MessageHostObject*>(boxedHostObject.get());
+                                                                JNIEnv *jniEnv = GetJniEnv();
 
-                                                    auto messageParam = jsi::Value(arguments[0].asObject(runtime));
-                                                    jobject messageObject = JSIJNIConversion::convertJSIValueToJNIObject(runtime, messageParam);
+                                                                java_class = jniEnv->GetObjectClass(
+                                                                    java_object);
 
-                                                    JNIEnv *jniEnv = GetJniEnv();
+                                                                jmethodID set = jniEnv->GetMethodID(
+                                                                    java_class, "setMessage",
+                                                                    "(Lcom/facebook/react/bridge/ReadableArray;)V");
 
-                                                    java_class = jniEnv->GetObjectClass(
-                                                            java_object);
+                                                                jvalue params[1];
+                                                                params[0].l = map.release();
 
-                                                    jmethodID set = jniEnv->GetMethodID(
-                                                        java_class, "setMessage",
-                                                        "(Lcom/rnjsisecond/CWMessage;)V");
+                                                                jniEnv->CallVoidMethodA(
+                                                                    java_object, set, params);
 
-                                                    jvalue params[1];
-                                                    params[0].l = messageObject;
-                                                        
-                                                    jniEnv->CallVoidMethodA(
-                                                            java_object, set, params);
-
-                                                    return jsi::Value(true);
-
-                                                });
+                                                                return jsi::Value(true);
+                                                            });
 
     jsiRuntime.global().setProperty(jsiRuntime, "setMessage", move(setMessage));
 
